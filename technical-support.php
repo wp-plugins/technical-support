@@ -92,16 +92,16 @@ class TechnicalSupport {
 
 			jQuery("#technical-support-form").submit(function() {
 				
-				// Let's disable the form for a while and show the loading image
-				jQuery(':input','#technical-support-form').attr("disabled", "disabled");
-				jQuery(".technical-support-loader").show();
-				
 				// Format the request
 				var data = {
 					action: 'technical_support_submit',
 					formdata: jQuery(this).serialize()
 				};
 
+				// Let's disable the form for a while and show the loading image
+				jQuery(':input','#technical-support-form').attr("disabled", "disabled");
+				jQuery(".technical-support-loader").show();
+		
 				// Post the request and handle the response
 				jQuery.post(ajaxurl, data, function(response) {
 					jQuery(".technical-support-loader").hide();
@@ -131,6 +131,8 @@ class TechnicalSupport {
 			$value = urldecode($key_value[1]);
 			$form_data[$key] = $value;
 		}
+		
+		print_r($form_data);
 		
 		// If we've got an empty title and en empty message.. Whaa?
 		if (strlen($form_data["title"]) < 1 && strlen($form_data["content"]) < 1)
