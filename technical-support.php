@@ -132,8 +132,6 @@ class TechnicalSupport {
 			$form_data[$key] = $value;
 		}
 		
-		print_r($form_data);
-		
 		// If we've got an empty title and en empty message.. Whaa?
 		if (strlen($form_data["title"]) < 1 && strlen($form_data["content"]) < 1)
 			die("Please don't submit empty reports!");
