@@ -1,6 +1,6 @@
 === Technical Support ===
 Contributors: kovshenin
-Donate link: http://kovshenin.com/wordpress/plugins/bug-reporting/
+Donate link: http://kovshenin.com/wordpress/plugins/technical-support/
 Tags: bug, bugs, admin, administration, dashboard, support, plugin, contact, email, integration
 Requires at least: 2.9
 Tested up to: 2.9.1
