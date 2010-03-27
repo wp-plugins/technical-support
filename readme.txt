@@ -20,6 +20,11 @@ This plugin generates a Technical Support dashboard widget, where your clients c
 
 YES, I do consider feature requests, and that is what makes this plugin work. The discussions go here: [Technical Support for WordPress](http://kovshenin.com/wordpress/plugins/technical-support/ "Technical Support")
 
+Localization:
+
+* Russian by [Konstantin Kovshenin](http://kovshenin.com "Konstantin Kovshenin")
+* Hebrew by [Maor Barazany](http://maorb.info "Maor Barazany")
+
 == Installation ==
 
 1. Upload archive contents to the `/wp-content/plugins/` directory
@@ -46,6 +51,10 @@ Well you can upload the little logo on your own domain somewhere and then just p
 2. Configuration
 
 == Change log ==
+
+= 0.1.1 =
+* Localization (Russian, Hebrew)
+* Minor bugfixes
 
 = 0.1 =
 * Hey this is the first version ;)

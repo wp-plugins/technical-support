@@ -2,9 +2,9 @@
 /*
 Plugin Name: Technical Support
 Plugin URI: http://kovshenin.com/wordpress/plugins/technical-support/
-Description: Enhance your clients' websites with a bug reporting tool
+Description: Enhance your clients' websites with a bug reporting tool.
 Author: Konstantin Kovshenin
-Version: 0.1
+Version: 0.1.1
 Author URI: http://kovshenin.com/
 */
 /*
@@ -26,22 +26,29 @@ Author URI: http://kovshenin.com/
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+add_action ('init', 'ts_localize_init');
+ 
+function ts_localize_init ()	{
+ 	load_plugin_textdomain ('ts', '/wp-content/plugins/technical-support/languages');  
+}
 
 class TechnicalSupport {
 	var $settings = array();
 	var $defaultsettings = array();
 	var $notices = array();
 
-	function TechnicalSupport() {
+	function __construct() {
+		
 		$this->defaultsettings = array(
 			"provider_name" => "",
 			"provider_email" => "",
 			"provider_logo" => "",
 			"provider_url" => "",
 			
-			"topics" => "Theme Layout\nAdmin Panel\nPlugin Issue\nCore Functionality\nCore Upgrade Request\nPlugin Upgrade Request\nTheme Modification Request\nGeneral Support\nOther (please state below)",
-			"subject_format" => "New Support Ticket: [title]",
-			"message_format" => "Attention! A support ticket has been submitted at [url]. Details follow:\n\nName: [firstname] [lastname] ([email])\nRelated to: [topic]\n\n[title]\n\n[message]\n\n~ Technical Support for WordPress (http://kovshenin.com/1992)"
+			"topics" => __('Theme Layout', 'ts') . "\n" .  __('Admin Panel', 'ts') ."\n" .  __('Plugin Issue', 'ts') . "\n" .  __('Core Functionality', 'ts') . "\n" . __('Core Upgrade Request', 'ts') . "\n" . __('Plugin Upgrade Request', 'ts') . "\n" . __('Theme Modification Request', 'ts') . "\n" . __('General Support', 'ts') . "\n" . __('Other (please state below)', 'ts'),
+			"subject_format" => __('New Support Ticket:', 'ts') . '[title]' ,
+			"message_format" => __('Attention! A support ticket has been submitted at', 'ts') . '[url].' . __(' Details follow:', 'ts') . "\n\n" . __('Name:', 'ts') . " [firstname] [lastname] ([email])\n" . __('Related to:', 'ts') . " [topic]\n\n[title]\n\n[message]\n\n~ " . __('Technical Support for WordPress (http://kovshenin.com/1992)', 'ts')
+			
 		);
 
 		// Setup the settings by using the default as a base and then adding in any changed values
@@ -71,7 +78,7 @@ class TechnicalSupport {
 		
 		// If there are not settings shoot an admin notice
 		if (empty($this->settings["provider_name"]) || empty($this->settings["provider_email"]))
-			$this->notices[] = "The <strong>Technical Support</strong> plugin requires configuration. Please proceed to the <a href='options-general.php?page=technical-support/technical-support.php'>plugin settings page</a>.";
+			$this->notices[] = __('The <strong>Technical Support</strong> plugin requires configuration.', 'ts') .' '. __('Please proceed to the', 'ts') . ' ' . '<a href="options-general.php?page=technical-support/technical-support.php">' . __('plugin settings page', 'ts') . '</a>.';
 		
 		// If everything's fine, load the working hooks
 		else
@@ -134,15 +141,15 @@ class TechnicalSupport {
 		
 		// If we've got an empty title and en empty message.. Whaa?
 		if (strlen($form_data["title"]) < 1 && strlen($form_data["content"]) < 1)
-			die("Please don't submit empty reports!");
+			die(__('Please don\'t submit empty reports!', 'ts'));
 		
 		// Let's use these
 		global $current_user;
 		get_currentuserinfo();
 		
-		// Format the headers
-		$headers = 'From: ' . get_bloginfo('title') . ' <ticket@' . $_SERVER["SERVER_NAME"] . '>' . "\r\n\\";
-		$headers .= 'Reply-To: ' . $current_user->user_firstname . ' ' . $current_user->user_lastname . ' <' . $current_user->user_email . '>' . "\r\n";
+		// Format the headers		
+		$headers = 'From:' . get_bloginfo('title') . ' <'.$current_user->user_email .' >' . "\r\n\\";		
+		$headers .= 'Reply-To:' . $current_user->user_firstname . ' ' . $current_user->user_lastname . ' <' . $current_user->user_email . '>' . "\r\n";
 		
 		// Shortcode arrays for str_replace
 		$shortcodes = array(
@@ -170,17 +177,18 @@ class TechnicalSupport {
 		$message = str_replace($shortcodes, $shortcodes_replace, $this->settings["message_format"]);
 		
 		// Send the mail and echo the response
-		if (wp_mail($this->settings["provider_email"], $subject, $message, $headers)) echo "Your e-mail has been sent!";
-		else echo "E-mail could not be sent, please contact support directly: " . $this->settings["provider_email"];
+		if (wp_mail($this->settings["provider_email"], $subject, $message, $headers)) _e('Your e-mail has been sent!', 'ts');
+		else _e('E-mail could not be sent, please contact support directly:', 'ts')  . $this->settings["provider_email"];
 
 		die();
 	}
-
+	
 	// Setup the dashboard widget
 	function dashboard_setup()
 	{
-		wp_add_dashboard_widget("technical-support-dashboard", "Technical Support", array(&$this, "technical_support"), $control_callback = null);
+		wp_add_dashboard_widget("technical-support-dashboard", __('Technical Support', 'ts') , array(&$this, "technical_support"), $control_callback = null);
 	}
+	
 	
 	// This is how the dashboard widget looks and feels
 	function technical_support()
@@ -190,7 +198,7 @@ class TechnicalSupport {
 
 	?>
 
-	<p>Please use this form to report encountered bugs, issues and other support requests directly to <strong><?php echo $this->settings["provider_name"]; ?></strong>. Note that a response e-mail will be sent to the address associated with your profile (<a href="mailto:<?php echo $current_user->user_email; ?>"><?php echo $current_user->user_email; ?></a>). In order to change that please visit your <a href="profile.php">profile page</a>.</p>
+	<p><?php _e('Please use this form to report encountered bugs, issues and other support requests directly to', 'ts');?> <strong><?php echo $this->settings["provider_name"]; ?></strong>. <?php _e('Note that a response e-mail will be sent to the address associated with your profile', 'ts');?> (<a href="mailto:<?php echo $current_user->user_email; ?>"><?php echo $current_user->user_email; ?></a>). <?php _e('In order to change that please visit your', 'ts');?> <a href="profile.php"><?php _e('profile page', 'ts');?></a>.</p>
 
 	<style>
 
@@ -233,20 +241,24 @@ class TechnicalSupport {
 		position: relative;
 		top: 5px;
 	}
+	
+	.rtlfix {
+		text-align:left !important;
+	}
 
 	</style>
 
 	<form id="technical-support-form">
 		<table>
 			<tr>
-				<td class="technical-support-left"><label for="title">Title</label></td>
+				<td class="technical-support-left"><label for="title"><?php _e('Title', 'ts');?></label></td>
 				<td class="technical-support-right">
 					<p><input type="text" value="" autocomplete="off" tabindex="1" id="title" name="title" style="width:99%"></p>
-					<span class="description">Give your issue a short name</span>
+					<span class="description"><?php _e('Give your issue a short name', 'ts');?></span>
 				</td>
 			</tr>
 			<tr>
-				<td class="technical-support-left"><label for="relatedto">Related to</label></td>
+				<td class="technical-support-left"><label for="relatedto"><?php _e('Related to', 'ts');?></label></td>
 				<td class="technical-support-right">
 					<p>
 						<select name="relatedto" id="relatedto">
@@ -257,33 +269,33 @@ class TechnicalSupport {
 ?>
 						</select>
 					</p>
-					<span class="description">Pick one that suits your issue.</span>
+					<span class="description"><?php _e('Pick one that suits your issue.', 'ts');?></span>
 				</td>
 			</tr>
 			<tr>
-				<td class="technical-support-left"><label for="content">Description</label></td>
+				<td class="technical-support-left"><label for="content"><?php _e('Description', 'ts');?></label></td>
 				<td class="technical-support-right">
 					<p><textarea tabindex="2" class="mceEditor" id="content" name="content" style="width:99%; height: 100px;"></textarea></p>
-					<span class="description">Please describe your issue as detailed as possible. If it's plugin related, please provide the full name of the plugin as well.</span>
+					<span class="description"><?php _e('Please describe your issue as detailed as possible. If it\'s plugin related, please provide the full name of the plugin as well.', 'ts');?></span>
 				</td>
 			</tr>
 			<tr>
 				<td class="technical-support-left"></td>
 				<td class="technical-support-right">
 					<p class="submit">
-						<input type="submit" value="Send Report" class="button-primary" tabindex="5" accesskey="p" id="publish" name="publish">
-						<span class="description"><img class="technical-support-loader" src="<?php echo plugins_url();?>/technical-support/ajax-loader.gif" alt="Loading" />This report will be sent by e-mail to <a href="mailto:<?php echo $this->settings["provider_email"]; ?>"><?php echo $this->settings["provider_email"]; ?></a></span>
+						<input type="submit" value="<?php _e('Send Report', 'ts');?>" class="button-primary" tabindex="5" accesskey="p" id="publish" name="publish">
+						<span class="description"><img class="technical-support-loader" src="<?php echo plugins_url();?>/technical-support/ajax-loader.gif" alt="Loading" /><?php _e('This report will be sent by e-mail to', 'ts');?> <a href="mailto:<?php echo $this->settings["provider_email"]; ?>"><?php echo $this->settings["provider_email"]; ?></a></span>
 					</p>
 				</td>
 			</tr>
 		</table>
 	</form>
 
-	<p class="technical-support-footer">Support provided by <a href="<?php echo $this->settings["provider_url"]; ?>"><img src="<?php echo $this->settings["provider_logo"]; ?>" alt="<?php echo $this->settings["provider_name"]; ?>" /></a></p>
+	<p class="technical-support-footer <?php if (get_bloginfo('text_direction') == "rtl") echo 'rtlfix';?>"><?php _e('Support provided by','ts');?> <a href="<?php echo $this->settings["provider_url"]; ?>"><img src="<?php echo $this->settings["provider_logo"]; ?>" alt="<?php echo $this->settings["provider_name"]; ?>" /></a></p>
 
-	<?	
+	<?php
 	}
-	
+
 	// Handle and output admin notices
 	function admin_notices()
 	{
@@ -294,7 +306,7 @@ class TechnicalSupport {
 	
 	// Register an admin menu entry
 	function admin_menu() {
-		add_options_page('Technical Support', 'Technical Support', 8, __FILE__, array(&$this, 'options'));
+		add_options_page(__('Technical Support', 'ts'), __('Technical Support', 'ts'), 8, __FILE__, array(&$this, 'options'));
 	}
 	
 	// Use this to save the settings array
@@ -320,12 +332,13 @@ class TechnicalSupport {
 
 			$this->save_settings();
 			
-			$this->notices[] = "Your <strong>Technical Support</strong> settings have been saved.";
+			$this->notices[] = __('Your <strong>Technical Support</strong> settings have been saved.', 'ts');
 		}
 	}
 
 	// Here's the Technical Support settings screen
 	function options() {
+		global $current_user;
 		$provider_name = $this->settings["provider_name"];
 		$provider_email = $this->settings["provider_email"];
 		$provider_logo = $this->settings["provider_logo"];
@@ -336,73 +349,73 @@ class TechnicalSupport {
 		$message_format = $this->settings["message_format"];
 ?>
 		<div class="wrap">
-		<h2>Technical Support Settings</h2>
-		<h3>Support Provider</h3>
-		<p>Make sure you test e-mail sending after setup. Also note that if WordPress cannot send e-mails, then neither can this plugin, so make sure WordPress e-mail settings are correctly configured. Also note that the e-mails will be sent from <a href="mailto:<?php echo '<ticket@' . $_SERVER["SERVER_NAME"] . '>'; ?>"><?php echo '<ticket@' . $_SERVER["SERVER_NAME"] . '>'; ?></a> so make sure you add it to your contacts. If you're encountering problems receiving e-mails, try setting up <a href="http://en.wikipedia.org/wiki/Sender_Policy_Framework">SPF</a> for this domain.</p>
+		<h2><?php _e('Technical Support Settings', 'ts');?></h2>
+		<h3><?php _e('Support Provider', 'ts');?></h3>
+		<p><?php _e('Make sure you test e-mail sending after setup. Also note that if WordPress cannot send e-mails, then neither can this plugin, so make sure WordPress e-mail settings are correctly configured. Also note that the e-mails will be sent from', 'ts');?> <a href="mailto:<?php echo $current_user->user_email; ?>"><?php echo $current_user->user_email; ?></a> <?php _e('so make sure you add it to your contacts. If you\'re encountering problems receiving e-mails, try setting up', 'ts');?> <a href="http://en.wikipedia.org/wiki/Sender_Policy_Framework">SPF</a> <?php _e('for this domain', 'ts');?>.</p>
 		<form method="post">
 			<input type="hidden" value="1" name="technical-support-submit"/>
 			<table class="form-table" style="margin-bottom:10px;">
 			<tbody>
 				<tr valign="top">
-					<th scope="row"><label for="provider_name">Provider Name</label></th>
+					<th scope="row"><label for="provider_name"><?php _e('Provider Name', 'ts');?></label></th>
 					<td>
 						<input class="regular-text" type="text" value="<?php echo $provider_name; ?>" id="provider_name" name="provider_name" /><br />
-						<span class="description">Use your company name, for instance: Microsoft</span>
+						<span class="description"><?php _e('Use your company name, for instance: Microsoft', 'ts');?></span>
 					</td>
 				</tr>
 				<tr valign="top">
-					<th scope="row"><label for="provider_email">Provider E-mail</label></th>
+					<th scope="row"><label for="provider_email"><?php _e('Provider E-mail', 'ts');?></label></th>
 					<td>
 						<input class="regular-text" type="text" value="<?php echo $provider_email; ?>" id="provider_email" name="provider_email"/><br />
-						<span class="description">All reports will be sent to this address: support@companydomain.com</span>
+						<span class="description"><?php _e('All reports will be sent to this address:', 'ts');?> support@companydomain.com</span>
 					</td>
 				</tr>
 				<tr valign="top">
-					<th scope="row"><label for="provider_logo">Provider Logo</label></th>
+					<th scope="row"><label for="provider_logo"><?php _e('Provider Logo', 'ts');?></label></th>
 					<td>
 						<input class="regular-text" type="text" value="<?php echo $provider_logo; ?>" id="provider_logo" name="provider_logo"/><br />
-						<span class="description">The URL of the provider logo. Recommended size is 74x22 pixels</span>
+						<span class="description"><?php _e('The URL of the provider logo. Recommended size is 74x22 pixels', 'ts');?></span>
 					</td>
 				</tr>
 				<tr valign="top">
-					<th scope="row"><label for="provider_url">Provider URL</label></th>
+					<th scope="row"><label for="provider_url"><?php _e('Provider URL', 'ts');?></label></th>
 					<td>
 						<input class="regular-text" type="text" value="<?php echo $provider_url; ?>" id="provider_url" name="provider_url"/><br />
-						<span class="description">The URL of the provider homepage, please start with http</span>
+						<span class="description"><?php _e('The URL of the provider homepage, please start with http', 'ts');?></span>
 					</td>
 				</tr>
 			</tbody>
 			</table>
 			
-			<h3>Topics &amp; E-mail Formatting</h3>
-			<p>Customize your technical support widget: topics and email formatting.</p>
+			<h3><?php _e('Topics', 'ts');?> &amp; <?php _e('E-mail Formatting', 'ts');?></h3>
+			<p><?php _e('Customize your technical support widget: topics and email formatting.', 'ts');?></p>
 			<table class="form-table">
 			<tbody>
 				<tr valign="top">
-					<th scope="row"><label for="topics">Topics</label></th>
+					<th scope="row"><label for="topics"><?php _e('Topics', 'ts');?></label></th>
 					<td>
-						<textarea class="regular-text" id="topics" name="topics" style="width: 25em;"><?php echo htmlspecialchars($topics); ?></textarea><br />
-						<span class="description">Provide a return separated list of what topics you provide support on</span>
+						<textarea class="regular-text" id="topics" name="topics" style="width: 25em; height:15em;"><?php echo htmlspecialchars($topics); ?></textarea><br />
+						<span class="description"><?php _e('Provide a return separated list of what topics you provide support on', 'ts');?></span>
 					</td>
 				</tr>
 				<tr valign="top">
-					<th scope="row"><label for="subject_format">E-mail Subject</label></th>
+					<th scope="row"><label for="subject_format"><?php _e('E-mail Subject', 'ts');?></label></th>
 					<td>
 						<input class="regular-text" type="text" value="<?php echo htmlspecialchars($subject_format); ?>" id="subject_format" name="subject_format"/><br />
-						<span class="description">Customize the subject format, use the [title] short-tag, for instance: New Ticket - [title]</span>
+						<span class="description"><?php _e('Customize the subject format, use the', 'ts'); ' [title] ' . _e('short-tag, for instance: New Ticket', 'ts');?> - [title] </span>
 					</td>
 				</tr>
 				<tr valign="top">
-					<th scope="row"><label for="message_format">Message Format</label></th>
+					<th scope="row"><label for="message_format"><?php _e('Message Format', 'ts');?></label></th>
 					<td>
 						<textarea class="regular-text" id="message_format" name="message_format" style="width: 25em; height: 15em;"><?php echo htmlspecialchars($message_format); ?></textarea><br />
-						<span class="description">This is what you will receive by e-mail. Use the following tags: [title], [message], [topic], [url], [firstname], [lastname], [email]</span>
+						<span class="description"><?php _e('This is what you will receive by e-mail. Use the following tags:', 'ts');?> [title], [message], [topic], [url], [firstname], [lastname], [email]</span>
 					</td>
 				</tr>
 			</tbody>
 			</table>
 			<p class="submit">
-				<input type="submit" value="Save Changes" class="button-primary" name="Submit"/>
+				<input type="submit" value="<?php _e('Save Changes', 'ts');?>" class="button-primary" name="Submit"/>
 			</p>
 		</form>
 		</div>
