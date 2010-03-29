@@ -148,7 +148,7 @@ class TechnicalSupport {
 		get_currentuserinfo();
 		
 		// Format the headers		
-		$headers = 'From:' . get_bloginfo('title') . ' <'.$current_user->user_email .' >' . "\r\n\\";		
+		$headers = 'From: ' . get_bloginfo('title') . ' <ticket@' . $_SERVER["SERVER_NAME"] . '>' . "\r\n\\";
 		$headers .= 'Reply-To:' . $current_user->user_firstname . ' ' . $current_user->user_lastname . ' <' . $current_user->user_email . '>' . "\r\n";
 		
 		// Shortcode arrays for str_replace
