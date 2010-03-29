@@ -159,7 +159,8 @@ class TechnicalSupport {
 			"[url]",
 			"[firstname]",
 			"[lastname]",
-			"[email]"
+			"[email]",
+			"[useragent]",
 		);
 		
 		$shortcodes_replace = array(
@@ -169,7 +170,8 @@ class TechnicalSupport {
 			get_bloginfo('home'),
 			$current_user->user_firstname,
 			$current_user->user_lastname,
-			$current_user->user_email
+			$current_user->user_email,
+			$_SERVER['HTTP_USER_AGENT'],
 		);
 		
 		// Format the subject and message

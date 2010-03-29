@@ -3,7 +3,7 @@ Contributors: kovshenin
 Donate link: http://kovshenin.com/wordpress/plugins/technical-support/
 Tags: bug, bugs, admin, administration, dashboard, support, plugin, contact, email, integration
 Requires at least: 2.9
-Tested up to: 2.9.1
+Tested up to: 3.0
 Stable tag: 0.1
 
 For WordPress developers: enhance your clients' websites with a bug reporting tool where they could pick a topic, write a message and send it over to you by e-mail directly from their admin dashboard!
@@ -54,6 +54,7 @@ Well you can upload the little logo on your own domain somewhere and then just p
 
 = 0.1.1 =
 * Localization (Russian, Hebrew)
+* Adding useragent to shortcodes
 * Minor bugfixes
 
 = 0.1 =
